@@ -24,13 +24,13 @@ body {
   overflow: hidden;
 }
 
-/* Start Screen */
+/* Start Screen - NINJA Style */
 .start-screen {
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(180deg, #1a1a2e 0%, #16213e 100%);
+  background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f0f 100%);
   padding: 20px;
   position: relative;
 }
@@ -47,28 +47,78 @@ body {
 .start-content {
   text-align: center;
   max-width: 600px;
-  background: rgba(26, 26, 46, 0.8);
-  padding: 60px 40px;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(232, 232, 232, 0.1);
+  background: linear-gradient(135deg, rgba(139, 115, 85, 0.95) 0%, rgba(107, 68, 35, 0.95) 100%);
+  padding: 50px 40px;
+  border-radius: 0;
+  box-shadow:
+    0 0 0 3px #8b7355,
+    0 0 0 6px rgba(139, 115, 85, 0.3),
+    0 20px 60px rgba(0, 0, 0, 0.7);
+  border: 4px solid #6b4423;
   backdrop-filter: blur(10px);
   position: relative;
   z-index: 1;
+
+  /* Bamboo texture */
+  background-image:
+    linear-gradient(135deg, rgba(139, 115, 85, 0.95) 0%, rgba(107, 68, 35, 0.95) 100%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 115, 85, 0.03) 2px,
+      rgba(139, 115, 85, 0.03) 4px
+    );
+}
+
+/* Bamboo leaves decoration */
+.start-content::before,
+.start-content::after {
+  content: '🎋';
+  position: absolute;
+  font-size: 48px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.start-content::before {
+  top: -10px;
+  left: -15px;
+  transform: rotate(-25deg);
+}
+
+.start-content::after {
+  top: -10px;
+  right: -15px;
+  transform: rotate(25deg) scaleX(-1);
+}
+
+/* Additional bamboo leaves at bottom */
+.start-content {
+  overflow: visible;
 }
 
 .start-content h1 {
   font-size: 48px;
-  color: #e8e8e8;
+  color: #fbbf24;
   margin-bottom: 20px;
-  text-shadow: 0 0 20px rgba(232, 232, 232, 0.3);
+  text-shadow:
+    2px 2px 0 #8b4513,
+    0 0 30px rgba(251, 191, 36, 0.5);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  border-bottom: 3px solid rgba(251, 191, 36, 0.3);
+  padding-bottom: 15px;
 }
 
 .start-content p {
-  font-size: 20px;
-  color: #b8b8c8;
+  font-size: 18px;
+  color: #f5deb3;
   margin-bottom: 40px;
-  line-height: 1.6;
+  line-height: 1.8;
+  text-shadow:
+    1px 1px 2px rgba(0, 0, 0, 0.8),
+    0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Game Screen - Fullscreen */
@@ -177,43 +227,68 @@ body {
   border-color: rgba(232, 232, 232, 0.4);
 }
 
-/* Buttons */
+/* Buttons - NINJA Style */
 .btn {
-  padding: 14px 28px;
+  padding: 12px 24px;
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  border-radius: 0;
+  font-size: 14px;
   font-weight: bold;
   cursor: pointer;
   transition: all 0.3s;
-  margin: 5px;
+  margin: 8px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .btn-large {
-  padding: 18px 36px;
-  font-size: 18px;
+  padding: 16px 32px;
+  font-size: 16px;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-  color: white;
-  border: 1px solid rgba(232, 232, 232, 0.2);
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  color: #dc2626;
+  border: 3px solid #dc2626;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.7),
+    0 0 20px rgba(220, 38, 38, 0.3);
+  text-shadow:
+    1px 1px 2px rgba(0, 0, 0, 0.9),
+    0 0 10px rgba(220, 38, 38, 0.5);
 }
 
 .btn-primary:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
-  background: linear-gradient(135deg, #16213e 0%, #0f1626 100%);
+  transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 30px rgba(220, 38, 38, 0.6);
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #ffffff;
+  border-color: #ef4444;
 }
 
 .btn-secondary {
-  background: #f0f0f0;
-  color: #333;
+  background: linear-gradient(135deg, #262626 0%, #171717 100%);
+  color: #9ca3af;
+  border: 3px solid #404040;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.7);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
 }
 
 .btn-secondary:hover {
-  background: #e0e0e0;
+  background: linear-gradient(135deg, #404040 0%, #262626 100%);
+  color: #dc2626;
   transform: translateY(-2px);
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.5),
+    0 6px 16px rgba(0, 0, 0, 0.8),
+    0 0 20px rgba(220, 38, 38, 0.2);
+  border-color: #dc2626;
 }
 
 /* Pause Indicator */
