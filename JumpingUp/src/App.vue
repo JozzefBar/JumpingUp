@@ -101,6 +101,71 @@
       @restart="restartLevel"
       @menu="handleMenuFromComplete"
     />
+
+    <!-- Print Section -->
+    <div class="print-section">
+      <h1>🏔️ Jumping Up</h1>
+      
+      <h2>Štatistiky</h2>
+
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-number">{{ stats.totalDeaths }}</div>
+          <div class="stat-label">Celkový počet pokusov</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ stats.totalJumps }}</div>
+          <div class="stat-label">Celkový počet skokov</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ stats.completedLevels.value.length }}</div>
+          <div class="stat-label">Dokončené levely</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">{{ stats.formatTime(stats.totalTime.value) }}</div>
+          <div class="stat-label">Celkový čas</div>
+        </div>
+      </div>
+
+      <h2 v-if="stats.completedLevels.value.length > 0">História levelov</h2>
+      <div v-if="stats.completedLevels.value.length > 0" class="history-table">
+        <div class="history-header">
+          <div>Level</div>
+          <div>Pokusy</div>
+          <div>Skoky</div>
+          <div>Čas</div>
+        </div>
+        <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
+          <div>Level {{ level.levelId }}</div>
+          <div>{{ level.deaths }}</div>
+          <div>{{ level.jumps }}</div>
+          <div>{{ stats.formatTime(level.time) }}</div>
+        </div>
+      </div>
+
+      <h2>Ako hrať</h2>
+      <div class="instructions">
+        <ol>
+          <li v-for="(step, index) in instructions.steps" :key="index">
+            {{ step }}
+          </li>
+        </ol>
+      </div>
+
+      <h2>Tipy</h2>
+      <div class="instructions">
+        <ul>
+          <li v-for="(tip, index) in instructions.tips" :key="index">
+            {{ tip }}
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer">
+        <p>Jumping Up - PWA Hra</p>
+        <p>Vytlačené: {{ new Date().toLocaleDateString('sk-SK') }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -403,3 +468,4 @@ onUnmounted(() => {
 </script>
 
 <style src="./css/main.css"></style>
+<style src="./css/print-game.css"></style>
