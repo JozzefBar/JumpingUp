@@ -28,9 +28,9 @@
         { "x": 130, "y": 510, "width": 220, "height": 20 },
         { "x": 500, "y": 435, "width": 200, "height": 20 },
         { "x": 200, "y": 350, "width": 230, "height": 20 },
-        { "x": 580, "y": 260, "width": 220, "height": 20 },
+        { "x": 580, "y": 260, "width": 200, "height": 20 },
         { "x": 160, "y": 175, "width": 250, "height": 20 },
-        { "x": 530, "y": 100, "width": 230, "height": 20 }
+        { "x": 530, "y": 100, "width": 270, "height": 20 }
       ],
       "obstacles": [
         {
@@ -56,6 +56,18 @@
           "maxX": 195,
           "minY": 250,
           "maxY": 370
+        },
+        {
+          "x": 350,
+          "y": 450,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0.75,
+          "velocityY": 1,
+          "minX": 430,
+          "maxX": 560,
+          "minY": 140,
+          "maxY": 330
         }
       ],
       "goal": { "x": 600, "y": 35, "width": 130, "height": 50 },
@@ -159,12 +171,12 @@
           "y": 590,
           "width": 30,
           "height": 30,
-          "velocityX": 2.0,
-          "velocityY": 0,
+          "velocityX": 1.0,
+          "velocityY": 1,
           "minX": 320,
           "maxX": 630,
           "minY": 590,
-          "maxY": 590
+          "maxY": 650
         },
         {
           "x": 420,
@@ -184,20 +196,189 @@
           "width": 30,
           "height": 30,
           "velocityX": 0,
-          "velocityY": 1.5,
+          "velocityY": 1.2,
           "minX": 450,
           "maxX": 450,
-          "minY": 120,
-          "maxY": 240
+          "minY": 150,
+          "maxY": 320
+        },
+        {
+          "x": 450,
+          "y": 200,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0,
+          "velocityY": 1.2,
+          "minX": 450,
+          "maxX": 450,
+          "minY": 150,
+          "maxY": 320
         }
       ],
-      "goal": { "x": 350, "y": 35, "width": 130, "height": 50 },
+      "collectibles": [
+        {
+          "type": "trajectory_orb",
+          "xPercent": 0.15,
+          "yPercent": 0.74,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        }
+      ],
+      "goal": { "x": 350, "y": 735, "width": 130, "height": 50 },
       "startPosition": { "x": 150, "y": 610 }
     },
     {
       "id": 5,
-      "name": "Ultimátna výzva",
+      "name": "Chrám zabudnutých kľúčov",
       "difficulty": "extreme",
+      "platforms": [
+        { "x": 50, "y": 680, "width": 250, "height": 20 },
+        { "x": 450, "y": 650, "width": 200, "height": 20 },
+        { "x": 720, "y": 580, "width": 150, "height": 20 },
+        { "x": 150, "y": 480, "width": 180, "height": 20 },
+        { "x": 500, "y": 410, "width": 160, "height": 20 },
+        { "x": 750, "y": 340, "width": 140, "height": 20 },
+        { "x": 200, "y": 270, "width": 170, "height": 20 },
+        { "x": 550, "y": 200, "width": 180, "height": 20 },
+        { "x": 100, "y": 130, "width": 200, "height": 20 },
+        { "x": 400, "y": 60, "width": 250, "height": 20 }
+      ],
+      "barriers": [
+        {
+          "xPercent": 0.38,
+          "yPercent": 0.12,
+          "widthPercent": 0.02,
+          "heightPercent": 0.12
+        },
+        {
+          "xPercent": 0.64,
+          "yPercent": 0.12,
+          "widthPercent": 0.02,
+          "heightPercent": 0.12
+        }
+      ],
+      "collectibles": [
+        {
+          "type": "key",
+          "xPercent": 0.87,
+          "yPercent": 0.42,
+          "widthPercent": 0.03,
+          "heightPercent": 0.04,
+          "collected": false
+        },
+        {
+          "type": "trajectory_orb",
+          "xPercent": 0.06,
+          "yPercent": 0.88,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        }
+      ],
+      "doors": [
+        {
+          "xPercent": 0.51,
+          "yPercent": 0.055,
+          "widthPercent": 0.045,
+          "heightPercent": 0.07,
+          "requiresKey": true,
+          "isOpen": false
+        }
+      ],
+      "obstacles": [
+        {
+          "x": 350,
+          "y": 650,
+          "width": 28,
+          "height": 28,
+          "velocityX": 1.8,
+          "velocityY": 0,
+          "minX": 310,
+          "maxX": 440,
+          "minY": 650,
+          "maxY": 650
+        },
+        {
+          "x": 680,
+          "y": 580,
+          "width": 28,
+          "height": 28,
+          "velocityX": 0,
+          "velocityY": 1,
+          "minX": 680,
+          "maxX": 680,
+          "minY": 500,
+          "maxY": 650
+        },
+        {
+          "x": 350,
+          "y": 440,
+          "width": 28,
+          "height": 28,
+          "velocityX": 1.6,
+          "velocityY": 0,
+          "minX": 340,
+          "maxX": 490,
+          "minY": 440,
+          "maxY": 440
+        },
+        {
+          "x": 650,
+          "y": 370,
+          "width": 28,
+          "height": 28,
+          "velocityX": 0,
+          "velocityY": 1.4,
+          "minX": 650,
+          "maxX": 650,
+          "minY": 310,
+          "maxY": 400
+        },
+        {
+          "x": 380,
+          "y": 300,
+          "width": 28,
+          "height": 28,
+          "velocityX": 1.5,
+          "velocityY": 0.8,
+          "minX": 380,
+          "maxX": 540,
+          "minY": 240,
+          "maxY": 330
+        },
+        {
+          "x": 300,
+          "y": 160,
+          "width": 28,
+          "height": 28,
+          "velocityX": 1.3,
+          "velocityY": 0,
+          "minX": 300,
+          "maxX": 540,
+          "minY": 160,
+          "maxY": 160
+        },
+        {
+          "x": 680,
+          "y": 100,
+          "width": 28,
+          "height": 28,
+          "velocityX": 0,
+          "velocityY": 1.2,
+          "minX": 680,
+          "maxX": 680,
+          "minY": 60,
+          "maxY": 190
+        }
+      ],
+      "goal": { "x": 475, "y": 10, "width": 100, "height": 40 },
+      "startPosition": { "x": 120, "y": 615 }
+    },
+    {
+      "id": 6,
+      "name": "Ultimátna výzva",
+      "difficulty": "legendary",
       "platforms": [
         { "x": 400, "y": 675, "width": 220, "height": 20 },
         { "x": 80, "y": 615, "width": 200, "height": 20 },
@@ -216,7 +397,7 @@
           "y": 630,
           "width": 25,
           "height": 25,
-          "velocityX": 2.2,
+          "velocityX": 1,
           "velocityY": 0,
           "minX": 290,
           "maxX": 690,

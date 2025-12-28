@@ -1061,22 +1061,28 @@ function drawGoal(goal) {
 
   // Add credit text for level 1 (below the goal)
   if (props.level && props.level.id === 1) {
-    ctx.value.fillStyle = '#ffffff'
-    ctx.value.font = `${12 * scale}px "Segoe UI", sans-serif`
+    ctx.value.fillStyle = '#10dfb2ff'
     ctx.value.textAlign = 'center'
     ctx.value.textBaseline = 'top'
     ctx.value.shadowBlur = 3
     ctx.value.shadowColor = 'rgba(0, 0, 0, 0.8)'
+
+    // "Created by:" text
+    ctx.value.font = `${12 * scale}px "Segoe UI", sans-serif`
     ctx.value.fillText(
       'Created by:',
       goal.x + goal.width + goal.width / 3,
       goal.y + goal.height / 7
     )
+
+    // Names with Satisfy font
+    ctx.value.font = `${16 * scale}px "Permanent Marker"`
     ctx.value.fillText(
-      'Jozef Barčák and Matúš Belan',
-      goal.x + goal.width + goal.width / 2 + goal.width / 7.8,
-      goal.y + goal.height / 2 + goal.height / 9
+      'Jozef Barčák & Matúš Belan',
+      goal.x + goal.width + goal.width / 2 + goal.width / 4,
+      goal.y + goal.height / 2 + goal.height / 6
     )
+
     ctx.value.shadowBlur = 0
     ctx.value.textAlign = 'start'
     ctx.value.textBaseline = 'alphabetic'
