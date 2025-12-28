@@ -1,0 +1,28 @@
+{
+  "gameSettings": {
+    "canvasWidth": 1000,
+    "canvasHeight": 750,
+    "playerWidth": 16,
+    "playerHeight": 32,
+    "gravity": 0.5,
+    "maxJumpPower": 15,
+    "dragMultiplier": 0.08,
+    "maxDragDistance": 150
+  },
+  "instructions": {
+    "title": "Ako hrať Jumping Up",
+    "steps": [
+      "Klikni na panáčika a podržiac tlačidlo myši, potiahni v opačnom smere, kam chceš skočiť",
+      "Dĺžka a smer ťahania určia silu a smer skoku",
+      "Cieľom je dostať sa na vrchol veže na zelenú platformu",
+      "Vyhýbaj sa červeným pohybujúcim sa prekážkam - ich dotyk znamená smrť!",
+      "Dávaj pozor, aby si nespadol - potom začneš znova!",
+      "Zbieraj zlaté kľúče na odomknutie dverí"
+    ],
+    "tips": [
+      "Každý level je ťažší ako predchádzajúci",
+      "Zober modrý orb - uvidíš presný smer a dĺžku svojho skoku!",
+      "Zlaté kľúče odomykajú dvere - určite sa oplatí ich zobrať"
+    ]
+  }
+}

@@ -113,6 +113,7 @@ import RotateDevice from './components/RotateDevice.vue'
 import { useGameStats } from './composables/useGameStats'
 import { useResponsiveCanvas } from './composables/useResponsiveCanvas'
 import levelsData from './data/levels.json'
+import settingsData from './data/settings.json'
 
 // Game state
 const gameStarted = ref(false)
@@ -133,8 +134,8 @@ let startAnimationFrame = null
 
 // Game data
 const levels = levelsData.levels
-const baseGameSettings = levelsData.gameSettings
-const instructions = levelsData.instructions
+const baseGameSettings = settingsData.gameSettings
+const instructions = settingsData.instructions
 
 // Stats
 const stats = useGameStats()

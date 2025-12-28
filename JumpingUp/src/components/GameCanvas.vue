@@ -410,35 +410,43 @@ function drawObstacles() {
   if (!obstacles.value || obstacles.value.length === 0) return
 
   obstacles.value.forEach(obstacle => {
-    // Glowing danger effect
-    ctx.value.shadowBlur = 15
-    ctx.value.shadowColor = '#ef4444'
+    // Subtle night glow effect - cyan/teal
+    ctx.value.shadowBlur = 12
+    ctx.value.shadowColor = 'rgba(6, 182, 212, 0.6)' // Soft cyan glow
 
-    // Main obstacle body
-    ctx.value.fillStyle = '#dc2626'
+    // Dark night obstacle body - deep cyan/teal
+    const gradient = ctx.value.createRadialGradient(
+      obstacle.x + obstacle.width / 2,
+      obstacle.y + obstacle.height / 2,
+      0,
+      obstacle.x + obstacle.width / 2,
+      obstacle.y + obstacle.height / 2,
+      obstacle.width * 0.7
+    )
+    gradient.addColorStop(0, '#0e7490') // Deep cyan center
+    gradient.addColorStop(0.5, '#0c4a6e') // Dark blue-cyan
+    gradient.addColorStop(1, '#082f49') // Very dark blue
+
+    ctx.value.fillStyle = gradient
     ctx.value.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
 
-    // Inner glow
-    ctx.value.fillStyle = '#fca5a5'
+    // Soft inner mystical glow
+    const time = Date.now() / 500
+    const pulse = (Math.sin(time) + 1) / 2
+    ctx.value.fillStyle = `rgba(34, 211, 238, ${0.2 + pulse * 0.15})` // Gentle cyan glow
     ctx.value.fillRect(
-      obstacle.x + obstacle.width * 0.2,
-      obstacle.y + obstacle.height * 0.2,
-      obstacle.width * 0.6,
-      obstacle.height * 0.6
+      obstacle.x + obstacle.width * 0.25,
+      obstacle.y + obstacle.height * 0.25,
+      obstacle.width * 0.5,
+      obstacle.height * 0.5
     )
 
     ctx.value.shadowBlur = 0
 
-    // Border
-    ctx.value.strokeStyle = '#991b1b'
+    // Subtle border
+    ctx.value.strokeStyle = 'rgba(6, 182, 212, 0.7)' // Cyan border
     ctx.value.lineWidth = 2
     ctx.value.strokeRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
-
-    // Animated pulse effect (warning stripes)
-    const time = Date.now() / 200
-    const pulseOpacity = (Math.sin(time) + 1) / 2 * 0.3 + 0.2
-    ctx.value.fillStyle = `rgba(255, 255, 255, ${pulseOpacity})`
-    ctx.value.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
   })
 }
 

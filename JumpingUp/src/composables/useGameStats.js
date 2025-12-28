@@ -4,8 +4,8 @@ const STORAGE_KEY = 'jumping-up-game-save'
 
 export function useGameStats() {
   const currentLevel = ref(1)
-  const deaths = ref(0) // Pokusy = úmrtia
-  const jumps = ref(0) // Skoky = počet skokov
+  const deaths = ref(1) // Attempts = deaths starts at 1 (first attempt)
+  const jumps = ref(0) // Jumps 
   const totalDeaths = ref(0)
   const totalJumps = ref(0)
   const startTime = ref(null)
@@ -37,6 +37,9 @@ export function useGameStats() {
     jumps.value = 0
     elapsedTime.value = 0
 
+    // Add current attempt to totals (totals include current attempt)
+    totalDeaths.value++
+
     // Clear any existing timer
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
@@ -54,14 +57,14 @@ export function useGameStats() {
 
   function recordDeath() {
     deaths.value++
-    totalDeaths.value++
-    jumps.value = 0  // Reset jumps on each death
+    totalDeaths.value++  // Update total immediately
+    // Don't reset jumps - they accumulate across attempts in the same level
     saveToLocalStorage()
   }
 
   function recordJump() {
     jumps.value++
-    totalJumps.value++
+    totalJumps.value++  // Update total immediately
     saveToLocalStorage()
   }
 
@@ -72,6 +75,9 @@ export function useGameStats() {
 
     const levelTime = Date.now() - currentLevelStartTime.value
     levelTimes.value.push(levelTime)
+
+    // Don't add to totals - the successful attempt is already counted
+    // (was added by startLevel or recordDeath)
 
     completedLevels.value.push({
       levelId: currentLevel.value,
@@ -92,9 +98,21 @@ export function useGameStats() {
   }
 
   function resetLevel() {
+    // Subtract current level stats from totals before resetting
+    totalDeaths.value -= deaths.value // Subtract all attempts including current
+    totalJumps.value -= jumps.value
+
+    // Ensure totals don't go negative
+    if (totalDeaths.value < 0) totalDeaths.value = 0
+    if (totalJumps.value < 0) totalJumps.value = 0
+
+    // Reset current level stats
     deaths.value = 1
     jumps.value = 0
     elapsedTime.value = 0
+
+    // Add back the first attempt (totals include current attempt)
+    totalDeaths.value++
 
     // Clear existing timer
     if (timerInterval.value) {
@@ -107,21 +125,41 @@ export function useGameStats() {
     timerInterval.value = setInterval(() => {
       elapsedTime.value = Date.now() - currentLevelStartTime.value
     }, 100)
+
+    saveToLocalStorage()
   }
 
   function resumeLevel() {
-    // Resume timer from saved elapsedTime without resetting stats
+    // When resuming from saved game, reset the level stats but keep totals
+    // Subtract current saved stats from totals
+    totalDeaths.value -= deaths.value // Subtract all attempts including current
+    totalJumps.value -= jumps.value
+
+    // Ensure totals don't go negative
+    if (totalDeaths.value < 0) totalDeaths.value = 0
+    if (totalJumps.value < 0) totalJumps.value = 0
+
+    // Reset current level stats
+    deaths.value = 1
+    jumps.value = 0
+    elapsedTime.value = 0
+
+    // Add back the first attempt (totals include current attempt)
+    totalDeaths.value++
+
     // Clear any existing timer
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
       timerInterval.value = null
     }
 
-    // Start timer from saved elapsed time
-    currentLevelStartTime.value = Date.now() - elapsedTime.value
+    // Start fresh timer
+    currentLevelStartTime.value = Date.now()
     timerInterval.value = setInterval(() => {
       elapsedTime.value = Date.now() - currentLevelStartTime.value
     }, 100)
+
+    saveToLocalStorage()
   }
 
   function resetStats() {
@@ -219,7 +257,7 @@ export function useGameStats() {
       if (savedData) {
         const data = JSON.parse(savedData)
         currentLevel.value = data.currentLevel || 1
-        deaths.value = data.deaths || 0
+        deaths.value = data.deaths >= 1 ? data.deaths : 1 // Ensure minimum of 1 (first attempt)
         jumps.value = data.jumps || 0
         totalDeaths.value = data.totalDeaths || 0
         totalJumps.value = data.totalJumps || 0
