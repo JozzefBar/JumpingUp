@@ -29,11 +29,13 @@
           @goal-reached="handleGoalReached"
           @player-fell="handlePlayerFell"
           @jump="handleJump"
+          @drag-start="handleDragStart"
+          @drag-end="handleDragEnd"
         />
       </div>
 
       <!-- HUD Overlay - Minimalist corners -->
-      <div class="game-hud-overlay">
+      <div class="game-hud-overlay" :class="{ 'dragging': isDraggingPower }">
         <!-- Top Left: Level info -->
         <div class="hud-corner top-left">
           <div class="hud-text">Level {{ stats.currentLevel }}</div>
@@ -131,15 +133,17 @@
       <div v-if="stats.completedLevels.value.length > 0" class="history-table">
         <div class="history-header">
           <div>Level</div>
+          <div>Názov</div>
           <div>Pokusy</div>
           <div>Skoky</div>
           <div>Čas</div>
         </div>
         <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
-          <div>Level {{ level.levelId }}</div>
+          <div>{{ level.levelId }}</div>
+          <div>{{ level.name }}</div>
           <div>{{ level.deaths }}</div>
           <div>{{ level.jumps }}</div>
-          <div>{{ stats.formatTime(level.time) }}</div>
+          <div>{{ stats.formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></div>
         </div>
       </div>
 
@@ -234,6 +238,9 @@ const formattedElapsedTime = computed(() => {
 // Game is paused when isPaused is true OR menu is open
 const isGamePaused = computed(() => isPaused.value || showMenu.value)
 
+// Track dragging state
+const isDraggingPower = ref(false)
+
 function startGame() {
   gameStarted.value = true
   showMenu.value = false
@@ -291,8 +298,16 @@ function handleJump() {
   stats.recordJump()
 }
 
+function handleDragStart() {
+  isDraggingPower.value = true
+}
+
+function handleDragEnd() {
+  isDraggingPower.value = false
+}
+
 function handleGoalReached() {
-  const completion = stats.completeLevel()
+  const completion = stats.completeLevel(currentLevel.value.name)
   completionStats.value = completion
   completedLevelName.value = currentLevel.value.name
   showLevelComplete.value = true
@@ -332,6 +347,20 @@ function goToLevel(levelId) {
       gameCanvas.value.resetPlayer()
     }
   }, 50)
+}
+
+// Determine if a level completion has the best time for that level
+function isBestTime(level) {
+  // Get all completions for this level
+  const levelCompletions = stats.completedLevels.value.filter(l => l.levelId === level.levelId)
+
+  if (levelCompletions.length === 0) return false
+
+  // Find the minimum time for this level
+  const minTime = Math.min(...levelCompletions.map(l => l.time))
+
+  // Check if this level's time matches the minimum
+  return level.time === minTime
 }
 
 // Start screen particles

@@ -34,7 +34,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['goal-reached', 'player-fell', 'jump'])
+const emit = defineEmits(['goal-reached', 'player-fell', 'jump', 'drag-start', 'drag-end'])
 
 const canvas = ref(null)
 const ctx = ref(null)
@@ -740,6 +740,7 @@ function startDrag(event) {
     isDragging.value = true
     dragStart.value = coords
     dragCurrent.value = coords
+    emit('drag-start')
   }
 }
 
@@ -762,6 +763,7 @@ function endDrag(event) {
     }
 
     isDragging.value = false
+    emit('drag-end')
   }
 }
 
@@ -776,6 +778,7 @@ function startDragTouch(event) {
     isDragging.value = true
     dragStart.value = coords
     dragCurrent.value = coords
+    emit('drag-start')
   }
 }
 
@@ -799,6 +802,7 @@ function endDragTouch(event) {
     }
 
     isDragging.value = false
+    emit('drag-end')
   }
 }
 

@@ -70,6 +70,7 @@
           <div class="history-table">
             <div class="history-row header">
               <span>Level</span>
+              <span>Názov</span>
               <span>Pokusy</span>
               <span>Skoky</span>
               <span>Čas</span>
@@ -79,10 +80,11 @@
               :key="level.completedAt"
               class="history-row"
             >
-              <span>Level {{ level.levelId }}</span>
+              <span>{{ level.levelId }}</span>
+              <span>{{ level.name }}</span>
               <span>{{ level.deaths }}</span>
               <span>{{ level.jumps }}</span>
-              <span>{{ formatTime(level.time) }}</span>
+              <span>{{ formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></span>
             </div>
           </div>
         </div>
@@ -192,6 +194,21 @@ function isLevelLocked(level) {
   // Check if previous level is completed
   const previousLevel = level - 1
   return !isLevelCompleted(previousLevel)
+}
+
+function isBestTime(level) {
+  if (!props.stats || !props.stats.levelHistory) return false
+
+  // Get all completions for this level
+  const levelCompletions = props.stats.levelHistory.filter(l => l.levelId === level.levelId)
+
+  if (levelCompletions.length === 0) return false
+
+  // Find the minimum time for this level
+  const minTime = Math.min(...levelCompletions.map(l => l.time))
+
+  // Check if this level's time matches the minimum
+  return level.time === minTime
 }
 </script>
 

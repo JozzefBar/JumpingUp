@@ -68,7 +68,7 @@ export function useGameStats() {
     saveToLocalStorage()
   }
 
-  function completeLevel() {
+  function completeLevel(levelName = '') {
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
     }
@@ -81,6 +81,7 @@ export function useGameStats() {
 
     completedLevels.value.push({
       levelId: currentLevel.value,
+      name: levelName,
       deaths: deaths.value,
       jumps: jumps.value,
       time: levelTime,
