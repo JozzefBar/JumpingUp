@@ -34,7 +34,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['goal-reached', 'player-fell', 'jump'])
+const emit = defineEmits(['goal-reached', 'player-fell', 'jump', 'drag-start', 'drag-end'])
 
 const canvas = ref(null)
 const ctx = ref(null)
@@ -53,6 +53,9 @@ const physics = useGamePhysics(props.settings)
 
 // Particle system for background
 const particles = ref([])
+
+// Goal particles (animated dots at finish)
+const goalParticles = ref([])
 
 // Obstacles system
 const obstacles = ref([])
@@ -87,6 +90,16 @@ function initParticles() {
       opacity: Math.random() * 0.5 + 0.3,
       rotation: Math.random() * Math.PI * 2,
       rotationSpeed: (Math.random() - 0.5) * 0.05
+    })
+  }
+}
+
+function initGoalParticles() {
+  goalParticles.value = []
+  for (let i = 0; i < 3; i++) {
+    goalParticles.value.push({
+      x: Math.random(),
+      y: Math.random()
     })
   }
 }
@@ -164,6 +177,7 @@ watch(() => props.level, (newLevel) => {
     physics.setPosition(newLevel.startPosition.x, newLevel.startPosition.y)
     physics.startFalling()
     initParticles()
+    initGoalParticles()
     initObstacles()
     initBarriers()
     initCollectibles()
@@ -194,6 +208,14 @@ function updateParticles() {
       particle.y = -10
       particle.x = Math.random() * canvasWidth.value
     }
+  })
+}
+
+function updateGoalParticles() {
+  // Generate new random positions for blinking effect
+  goalParticles.value.forEach(particle => {
+    particle.x = Math.random()
+    particle.y = Math.random()
   })
 }
 
@@ -357,13 +379,42 @@ function checkDoorCollision() {
     const doorTop = door.y
     const doorBottom = door.y + door.height
 
-    // Check collision with closed door (acts as wall)
+    // Check collision with closed door (acts as solid wall like barriers)
     if (
       playerRight > doorLeft &&
       playerLeft < doorRight &&
       playerBottom > doorTop &&
       playerTop < doorBottom
     ) {
+      // Calculate overlap on each side
+      const overlapLeft = playerRight - doorLeft
+      const overlapRight = doorRight - playerLeft
+      const overlapTop = playerBottom - doorTop
+      const overlapBottom = doorBottom - playerTop
+
+      // Find the smallest overlap (direction of collision)
+      const minOverlap = Math.min(overlapLeft, overlapRight, overlapTop, overlapBottom)
+
+      // Push player back based on collision direction (same as barriers)
+      if (minOverlap === overlapLeft) {
+        // Collision from left - push player left
+        physics.playerPosition.value.x = doorLeft - props.settings.playerWidth - 1
+        physics.velocity.value.x = -Math.abs(physics.velocity.value.x) * 0.5
+      } else if (minOverlap === overlapRight) {
+        // Collision from right - push player right
+        physics.playerPosition.value.x = doorRight + 1
+        physics.velocity.value.x = Math.abs(physics.velocity.value.x) * 0.5
+      } else if (minOverlap === overlapTop) {
+        // Collision from top - push player up (landing on door)
+        physics.playerPosition.value.y = doorTop - props.settings.playerHeight - 0.5
+        physics.velocity.value.y = 0
+        physics.isJumping.value = false
+      } else if (minOverlap === overlapBottom) {
+        // Collision from bottom - push player down (hitting head on door)
+        physics.playerPosition.value.y = doorBottom
+        physics.velocity.value.y = Math.abs(physics.velocity.value.y) * 0.3
+      }
+
       return true
     }
   }
@@ -740,6 +791,7 @@ function startDrag(event) {
     isDragging.value = true
     dragStart.value = coords
     dragCurrent.value = coords
+    emit('drag-start')
   }
 }
 
@@ -762,6 +814,7 @@ function endDrag(event) {
     }
 
     isDragging.value = false
+    emit('drag-end')
   }
 }
 
@@ -776,6 +829,7 @@ function startDragTouch(event) {
     isDragging.value = true
     dragStart.value = coords
     dragCurrent.value = coords
+    emit('drag-start')
   }
 }
 
@@ -799,6 +853,7 @@ function endDragTouch(event) {
     }
 
     isDragging.value = false
+    emit('drag-end')
   }
 }
 
@@ -1059,13 +1114,13 @@ function drawGoal(goal) {
 
   // Animated particles effect (simple dots)
   ctx.value.fillStyle = '#4ade80'
-  for (let i = 0; i < 3; i++) {
-    const dotX = goal.x + Math.random() * goal.width
-    const dotY = goal.y + Math.random() * goal.height
+  goalParticles.value.forEach(particle => {
+    const dotX = goal.x + particle.x * goal.width
+    const dotY = goal.y + particle.y * goal.height
     ctx.value.beginPath()
     ctx.value.arc(dotX, dotY, 2 * scale, 0, Math.PI * 2)
     ctx.value.fill()
-  }
+  })
 
   // Add credit text for level 1
   if (props.level && props.level.id === 1) {
@@ -1539,6 +1594,9 @@ function gameLoop() {
     // Update particles
     updateParticles()
 
+    // Update goal particles
+    updateGoalParticles()
+
     // Update obstacles
     updateObstacles()
 
@@ -1571,17 +1629,8 @@ function gameLoop() {
     // Check barrier collision (stone walls) - just bounce, don't reset
     checkBarrierCollision()
 
-    // Check door collision (closed doors act as walls)
-    if (checkDoorCollision()) {
-      emit('player-fell')
-      // Reset player to start position
-      physics.setPosition(props.level.startPosition.x, props.level.startPosition.y)
-      physics.startFalling()
-      initObstacles()
-      initCollectibles()
-      initDoors()
-      hasTrajectoryVision.value = false // Reset trajectory vision when player dies
-    }
+    // Check door collision (closed doors act as solid walls like barriers)
+    checkDoorCollision()
 
     // Check collectible pickup (keys)
     checkCollectiblePickup()
@@ -1612,6 +1661,7 @@ onMounted(() => {
   physics.setPosition(props.level.startPosition.x, props.level.startPosition.y)
   physics.startFalling()
   initParticles()
+  initGoalParticles()
   initObstacles()
   initBarriers()
   initCollectibles()
@@ -1631,3 +1681,4 @@ defineExpose({
 </script>
 
 <style src="../css/game-canvas.css"></style>
+
