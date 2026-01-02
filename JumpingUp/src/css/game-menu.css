@@ -361,7 +361,7 @@
     0 6px 16px rgba(0, 0, 0, 0.6);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .game-menu-overlay {
     padding: 0.375rem;
   }
@@ -482,7 +482,7 @@
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
   .game-menu {
     padding: 0.875rem 0.625rem;
     max-width: 90%;

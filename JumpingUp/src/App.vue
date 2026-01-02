@@ -281,6 +281,7 @@ function restartGame() {
 
 function restartLevel() {
   showLevelComplete.value = false
+  isPaused.value = false  // Unpause when restarting
   stats.resetLevel()
   levelRestartKey.value++
   // Use nextTick to ensure component is ready after key change
@@ -382,19 +383,36 @@ function isBestTime(level) {
 }
 
 // Start screen particles
+// Cap DPR at 2 for better performance on high-DPI displays
+const startCanvasDpr = Math.min(window.devicePixelRatio || 1, 2)
+const logicalWidth = ref(window.innerWidth)
+const logicalHeight = ref(window.innerHeight)
+
 function initStartParticles() {
   if (!startCanvas.value) return
 
   const canvas = startCanvas.value
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
+  logicalWidth.value = window.innerWidth
+  logicalHeight.value = window.innerHeight
+
+  // Set canvas size for high-DPI displays
+  canvas.width = Math.floor(logicalWidth.value * startCanvasDpr)
+  canvas.height = Math.floor(logicalHeight.value * startCanvasDpr)
+
+  // Set CSS size to logical dimensions
+  canvas.style.width = `${logicalWidth.value}px`
+  canvas.style.height = `${logicalHeight.value}px`
+
+  // Scale context for DPR
+  const ctx = canvas.getContext('2d')
+  ctx.scale(startCanvasDpr, startCanvasDpr)
 
   startParticles.value = []
   const numParticles = 40
   for (let i = 0; i < numParticles; i++) {
     startParticles.value.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * logicalWidth.value,
+      y: Math.random() * logicalHeight.value,
       vx: (Math.random() - 0.5) * 0.3,
       vy: (Math.random() - 0.5) * 0.3,
       size: Math.random() * 2 + 1,
@@ -406,15 +424,14 @@ function initStartParticles() {
 function updateStartParticles() {
   if (!startCanvas.value) return
 
-  const canvas = startCanvas.value
   startParticles.value.forEach(particle => {
     particle.x += particle.vx
     particle.y += particle.vy
 
-    if (particle.x < 0) particle.x = canvas.width
-    if (particle.x > canvas.width) particle.x = 0
-    if (particle.y < 0) particle.y = canvas.height
-    if (particle.y > canvas.height) particle.y = 0
+    if (particle.x < 0) particle.x = logicalWidth.value
+    if (particle.x > logicalWidth.value) particle.x = 0
+    if (particle.y < 0) particle.y = logicalHeight.value
+    if (particle.y > logicalHeight.value) particle.y = 0
   })
 }
 
@@ -424,7 +441,7 @@ function drawStartParticles() {
   const canvas = startCanvas.value
   const ctx = canvas.getContext('2d')
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.clearRect(0, 0, logicalWidth.value, logicalHeight.value)
 
   startParticles.value.forEach(particle => {
     ctx.fillStyle = `rgba(232, 232, 232, ${particle.opacity})`
