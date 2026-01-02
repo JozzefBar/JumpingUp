@@ -98,7 +98,7 @@
           Začať hru
         </button>
         <button v-if="showRestart" @click="restartGame" class="btn btn-secondary">
-          Začať novú hru
+          Reštartovať celú hru
         </button>
         <button @click="closeMenu" class="btn btn-secondary">Zavrieť</button>
       </div>

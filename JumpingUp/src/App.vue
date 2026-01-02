@@ -100,7 +100,7 @@
       :has-next-level="hasNextLevel"
       :format-time="stats.formatTime"
       @next-level="goToNextLevel"
-      @restart="restartLevel"
+      @restart="replayCurrentLevel"
       @menu="handleMenuFromComplete"
     />
 
@@ -126,44 +126,46 @@
         </ul>
       </div>
 
-      <h2>Štatistiky</h2>
+      <template v-if="gameStarted">
+        <h2>Štatistiky</h2>
 
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.totalDeaths }}</div>
-          <div class="stat-label">Celkový počet pokusov</div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.totalDeaths }}</div>
+            <div class="stat-label">Celkový počet pokusov</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.totalJumps }}</div>
+            <div class="stat-label">Celkový počet skokov</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.completedLevels.value.length }}</div>
+            <div class="stat-label">Dokončené levely</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.formatTime(stats.totalTime.value) }}</div>
+            <div class="stat-label">Celkový čas</div>
+          </div>
         </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.totalJumps }}</div>
-          <div class="stat-label">Celkový počet skokov</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.completedLevels.value.length }}</div>
-          <div class="stat-label">Dokončené levely</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.formatTime(stats.totalTime.value) }}</div>
-          <div class="stat-label">Celkový čas</div>
-        </div>
-      </div>
 
-      <h2 v-if="stats.completedLevels.value.length > 0">História levelov</h2>
-      <div v-if="stats.completedLevels.value.length > 0" class="history-table">
-        <div class="history-header">
-          <div>Level</div>
-          <div>Názov</div>
-          <div>Pokusy</div>
-          <div>Skoky</div>
-          <div>Čas</div>
+        <h2 v-if="stats.completedLevels.value.length > 0">História levelov</h2>
+        <div v-if="stats.completedLevels.value.length > 0" class="history-table">
+          <div class="history-header">
+            <div>Level</div>
+            <div>Názov</div>
+            <div>Pokusy</div>
+            <div>Skoky</div>
+            <div>Čas</div>
+          </div>
+          <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
+            <div>{{ level.levelId }}</div>
+            <div>{{ level.name }}</div>
+            <div>{{ level.deaths }}</div>
+            <div>{{ level.jumps }}</div>
+            <div>{{ stats.formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></div>
+          </div>
         </div>
-        <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
-          <div>{{ level.levelId }}</div>
-          <div>{{ level.name }}</div>
-          <div>{{ level.deaths }}</div>
-          <div>{{ level.jumps }}</div>
-          <div>{{ stats.formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></div>
-        </div>
-      </div>
+      </template>
 
       <div class="footer">
         <p>Jumping Up - PWA Hra</p>
@@ -227,7 +229,7 @@ const hasNextLevel = computed(() => {
 })
 
 const menuTitle = computed(() => {
-  return gameStarted.value ? 'Pauza' : 'Jumping Up'
+  return gameStarted.value ? 'Menu' : 'Jumping Up'
 })
 
 const formattedElapsedTime = computed(() => {
@@ -279,6 +281,19 @@ function restartLevel() {
   stats.resetLevel()
   levelRestartKey.value++
   // Use nextTick to ensure component is ready after key change
+  setTimeout(() => {
+    if (gameCanvas.value) {
+      gameCanvas.value.resetPlayer()
+    }
+  }, 50)
+}
+
+function replayCurrentLevel() {
+  // Continue playing the same level after completion (Hrať znova button)
+  // Stats continue accumulating
+  showLevelComplete.value = false
+  stats.continueCurrentLevel()
+  levelRestartKey.value++
   setTimeout(() => {
     if (gameCanvas.value) {
       gameCanvas.value.resetPlayer()
@@ -489,6 +504,26 @@ function handleAfterPrint() {
   }
 }
 
+// Handle window visibility - pause when minimized or alt-tabbed
+function handleVisibilityChange() {
+  if (document.hidden) {
+    // Page is hidden (minimized, alt-tabbed, etc.)
+    if (gameStarted.value && !isPaused.value && !showMenu.value && !showLevelComplete.value) {
+      isPaused.value = true
+    }
+  }
+  // Don't auto-resume when page becomes visible - let user manually resume
+}
+
+// Handle keyboard shortcuts
+function handleKeyPress(event) {
+  // Space key toggles pause during gameplay
+  if (event.code === 'Space' && gameStarted.value && !showMenu.value && !showLevelComplete.value) {
+    event.preventDefault() // Prevent page scrolling
+    togglePause()
+  }
+}
+
 // Register service worker for PWA
 onMounted(() => {
   // Check for saved game
@@ -506,6 +541,12 @@ onMounted(() => {
   window.addEventListener('beforeprint', handleBeforePrint)
   window.addEventListener('afterprint', handleAfterPrint)
 
+  // Add visibility change listener - pause when window loses focus
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  // Add keyboard shortcuts listener
+  window.addEventListener('keydown', handleKeyPress)
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
@@ -521,6 +562,10 @@ onUnmounted(() => {
   // Remove print dialog event listeners
   window.removeEventListener('beforeprint', handleBeforePrint)
   window.removeEventListener('afterprint', handleAfterPrint)
+  // Remove visibility change listener
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  // Remove keyboard shortcuts listener
+  window.removeEventListener('keydown', handleKeyPress)
 })
 </script>
 
