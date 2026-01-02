@@ -4,12 +4,23 @@
 }
 
 @media print {
-  * {
-    margin: 0;
-    padding: 0;
+   * {
+    box-sizing: border-box;
+  }
+
+  html, body, #app {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .print-section {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   body {
+    margin: 0;
     padding: 15px;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }

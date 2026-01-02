@@ -108,6 +108,24 @@
     <div class="print-section">
       <h1>🏔️ Jumping Up</h1>
       
+      <h2>Ako hrať</h2>
+      <div class="instructions">
+        <ol>
+          <li v-for="(step, index) in instructions.steps" :key="index">
+            {{ step }}
+          </li>
+        </ol>
+      </div>
+
+      <h2>Tipy</h2>
+      <div class="instructions">
+        <ul>
+          <li v-for="(tip, index) in instructions.tips" :key="index">
+            {{ tip }}
+          </li>
+        </ul>
+      </div>
+
       <h2>Štatistiky</h2>
 
       <div class="stats-grid">
@@ -145,24 +163,6 @@
           <div>{{ level.jumps }}</div>
           <div>{{ stats.formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></div>
         </div>
-      </div>
-
-      <h2>Ako hrať</h2>
-      <div class="instructions">
-        <ol>
-          <li v-for="(step, index) in instructions.steps" :key="index">
-            {{ step }}
-          </li>
-        </ol>
-      </div>
-
-      <h2>Tipy</h2>
-      <div class="instructions">
-        <ul>
-          <li v-for="(tip, index) in instructions.tips" :key="index">
-            {{ tip }}
-          </li>
-        </ul>
       </div>
 
       <div class="footer">
@@ -435,7 +435,10 @@ watch(showMenu, (isOpen) => {
     if (isOpen) {
       stats.pauseTimer()
     } else {
-      stats.resumeTimer()
+      // Only resume if the game is not paused by the user
+      if (!isPaused.value) {
+        stats.resumeTimer()
+      }
     }
   }
 })
@@ -468,6 +471,24 @@ watch(gameStarted, (started) => {
   }
 })
 
+// Handle print dialog - pause game when printing
+let wasPausedBeforePrint = false
+
+function handleBeforePrint() {
+  if (gameStarted.value && !isPaused.value && !showMenu.value && !showLevelComplete.value) {
+    wasPausedBeforePrint = false
+    isPaused.value = true
+  } else {
+    wasPausedBeforePrint = true
+  }
+}
+
+function handleAfterPrint() {
+  if (gameStarted.value && !wasPausedBeforePrint) {
+    isPaused.value = false
+  }
+}
+
 // Register service worker for PWA
 onMounted(() => {
   // Check for saved game
@@ -481,6 +502,10 @@ onMounted(() => {
     }, 100)
   }
 
+  // Add print dialog event listeners
+  window.addEventListener('beforeprint', handleBeforePrint)
+  window.addEventListener('afterprint', handleAfterPrint)
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
@@ -493,6 +518,9 @@ onMounted(() => {
 onUnmounted(() => {
   stats.pauseTimer()
   stopStartParticles()
+  // Remove print dialog event listeners
+  window.removeEventListener('beforeprint', handleBeforePrint)
+  window.removeEventListener('afterprint', handleAfterPrint)
 })
 </script>
 
