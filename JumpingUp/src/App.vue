@@ -7,16 +7,34 @@
     <div v-if="!gameStarted" class="start-screen">
       <canvas ref="startCanvas" class="start-canvas"></canvas>
       <div class="start-content">
-        <h1>🏔️ Jumping Up</h1>
+        <h1>🏔️ {{ gameInfo.name }}</h1>
         <p>Vyšplhaj sa na vrchol veže pomocou presných skokov.</p>
         <button v-if="hasSavedGame" @click="continueGame" class="btn btn-large btn-primary">Pokračovať</button>
-        <button @click="startGame" class="btn btn-large" :class="hasSavedGame ? 'btn-secondary' : 'btn-primary'">Začať novú hru</button>
+        <button @click="handleStartNewGame" class="btn btn-large" :class="hasSavedGame ? 'btn-secondary' : 'btn-primary'">Začať novú hru</button>
         <button @click="showMenu = true" class="btn btn-large btn-secondary">Návod</button>
       </div>
     </div>
 
+    <!-- Start Confirmation Dialog -->
+    <div v-if="!gameStarted && showStartConfirmation" class="game-menu-overlay" @click="showStartConfirmation = false">
+      <div class="game-menu start-confirmation-dialog" @click.stop>
+        <h2>Začať novú hru</h2>
+        <p style="margin: 1.5rem 0; text-align: center; color: #f5deb3;">
+          Naozaj chceš začať novú hru? Stratíš všetok svoj progress a štatistiky!
+        </p>
+        <div class="menu-actions">
+          <button @click="confirmStartGame" class="btn btn-primary">
+            Áno, začať novú hru
+          </button>
+          <button @click="showStartConfirmation = false" class="btn btn-secondary">
+            Zrušiť
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Game Screen (Fullscreen) -->
-    <div v-else class="game-screen">
+    <div v-if="gameStarted" class="game-screen">
       <!-- Game Canvas - Fullscreen -->
       <div class="game-canvas-wrapper">
         <GameCanvas
@@ -82,6 +100,7 @@
       :total-levels="levels.length"
       :current-level="currentLevelIndex + 1"
       :instructions="instructions"
+      :game-info="gameInfo"
       :stats="stats.getStats()"
       :format-time="stats.formatTime"
       :has-saved-game="hasSavedGame"
@@ -109,8 +128,13 @@
 
     <!-- Print Section -->
     <div class="print-section">
-      <h1>🏔️ Jumping Up</h1>
-      
+      <h1>🏔️ {{ gameInfo.name }}</h1>
+
+      <div class="game-description-print">
+        <p class="description-text">{{ gameInfo.description }}</p>
+        <p class="objective-text"><strong>Cieľ:</strong> {{ gameInfo.objective }}</p>
+      </div>
+
       <h2>Ako hrať</h2>
       <div class="instructions">
         <ol>
@@ -171,7 +195,7 @@
       </template>
 
       <div class="footer">
-        <p>Jumping Up - PWA Hra</p>
+        <p>{{ gameInfo.name }} - PWA Hra</p>
         <p>Vytlačené: {{ new Date().toLocaleDateString('sk-SK') }}</p>
       </div>
     </div>
@@ -193,6 +217,7 @@ import settingsData from './data/settings.json'
 const gameStarted = ref(false)
 const showMenu = ref(false)
 const showLevelComplete = ref(false)
+const showStartConfirmation = ref(false)
 const isPaused = ref(false)
 const currentLevelIndex = ref(0)
 const levelRestartKey = ref(0)
@@ -210,6 +235,7 @@ let startAnimationFrame = null
 const levels = levelsData.levels
 const baseGameSettings = settingsData.gameSettings
 const instructions = settingsData.instructions
+const gameInfo = settingsData.gameInfo
 
 // Stats
 const stats = useGameStats()
@@ -232,7 +258,7 @@ const hasNextLevel = computed(() => {
 })
 
 const menuTitle = computed(() => {
-  return gameStarted.value ? 'Menu' : 'Jumping Up'
+  return gameStarted.value ? 'Menu' : gameInfo.name
 })
 
 const formattedElapsedTime = computed(() => {
@@ -245,6 +271,19 @@ const isGamePaused = computed(() => isPaused.value || showMenu.value)
 
 // Track dragging state
 const isDraggingPower = ref(false)
+
+function handleStartNewGame() {
+  if (hasSavedGame.value) {
+    showStartConfirmation.value = true
+  } else {
+    startGame()
+  }
+}
+
+function confirmStartGame() {
+  showStartConfirmation.value = false
+  startGame()
+}
 
 function startGame() {
   gameStarted.value = true
@@ -281,6 +320,7 @@ function restartGame() {
 
 function restartLevel() {
   showLevelComplete.value = false
+  isPaused.value = false  // Unpause when restarting
   stats.resetLevel()
   levelRestartKey.value++
   // Use nextTick to ensure component is ready after key change
@@ -382,19 +422,36 @@ function isBestTime(level) {
 }
 
 // Start screen particles
+// Cap DPR at 2 for better performance on high-DPI displays
+const startCanvasDpr = Math.min(window.devicePixelRatio || 1, 2)
+const logicalWidth = ref(window.innerWidth)
+const logicalHeight = ref(window.innerHeight)
+
 function initStartParticles() {
   if (!startCanvas.value) return
 
   const canvas = startCanvas.value
-  canvas.width = window.innerWidth
-  canvas.height = window.innerHeight
+  logicalWidth.value = window.innerWidth
+  logicalHeight.value = window.innerHeight
+
+  // Set canvas size for high-DPI displays
+  canvas.width = Math.floor(logicalWidth.value * startCanvasDpr)
+  canvas.height = Math.floor(logicalHeight.value * startCanvasDpr)
+
+  // Set CSS size to logical dimensions
+  canvas.style.width = `${logicalWidth.value}px`
+  canvas.style.height = `${logicalHeight.value}px`
+
+  // Scale context for DPR
+  const ctx = canvas.getContext('2d')
+  ctx.scale(startCanvasDpr, startCanvasDpr)
 
   startParticles.value = []
   const numParticles = 40
   for (let i = 0; i < numParticles; i++) {
     startParticles.value.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
+      x: Math.random() * logicalWidth.value,
+      y: Math.random() * logicalHeight.value,
       vx: (Math.random() - 0.5) * 0.3,
       vy: (Math.random() - 0.5) * 0.3,
       size: Math.random() * 2 + 1,
@@ -406,15 +463,14 @@ function initStartParticles() {
 function updateStartParticles() {
   if (!startCanvas.value) return
 
-  const canvas = startCanvas.value
   startParticles.value.forEach(particle => {
     particle.x += particle.vx
     particle.y += particle.vy
 
-    if (particle.x < 0) particle.x = canvas.width
-    if (particle.x > canvas.width) particle.x = 0
-    if (particle.y < 0) particle.y = canvas.height
-    if (particle.y > canvas.height) particle.y = 0
+    if (particle.x < 0) particle.x = logicalWidth.value
+    if (particle.x > logicalWidth.value) particle.x = 0
+    if (particle.y < 0) particle.y = logicalHeight.value
+    if (particle.y > logicalHeight.value) particle.y = 0
   })
 }
 
@@ -424,7 +480,7 @@ function drawStartParticles() {
   const canvas = startCanvas.value
   const ctx = canvas.getContext('2d')
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height)
+  ctx.clearRect(0, 0, logicalWidth.value, logicalHeight.value)
 
   startParticles.value.forEach(particle => {
     ctx.fillStyle = `rgba(232, 232, 232, ${particle.opacity})`

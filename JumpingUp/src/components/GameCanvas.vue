@@ -2,8 +2,9 @@
   <div class="game-canvas-container">
     <canvas
       ref="canvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
+      :width="scaledCanvasWidth"
+      :height="scaledCanvasHeight"
+      :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
       @mousedown="startDrag"
       @mousemove="updateDrag"
       @mouseup="endDrag"
@@ -39,9 +40,15 @@ const emit = defineEmits(['goal-reached', 'player-fell', 'jump', 'drag-start', '
 const canvas = ref(null)
 const ctx = ref(null)
 const animationFrame = ref(null)
+// Cap DPR at 2 for better performance on high-DPI displays
+const dpr = ref(Math.min(window.devicePixelRatio || 1, 2))
 
 const canvasWidth = computed(() => props.settings.canvasWidth)
 const canvasHeight = computed(() => props.settings.canvasHeight)
+
+// Scale canvas for high-DPI displays
+const scaledCanvasWidth = computed(() => Math.floor(canvasWidth.value * dpr.value))
+const scaledCanvasHeight = computed(() => Math.floor(canvasHeight.value * dpr.value))
 
 // Drag and drop state
 const isDragging = ref(false)
@@ -760,8 +767,9 @@ function drawStartFlag() {
 }
 function getCanvasCoordinates(clientX, clientY) {
   const rect = canvas.value.getBoundingClientRect()
-  const scaleX = canvas.value.width / rect.width
-  const scaleY = canvas.value.height / rect.height
+  // Use logical dimensions, not physical canvas dimensions
+  const scaleX = canvasWidth.value / rect.width
+  const scaleY = canvasHeight.value / rect.height
 
   return {
     x: (clientX - rect.left) * scaleX,
@@ -773,12 +781,20 @@ function isClickOnPlayer(x, y) {
   const playerX = physics.playerPosition.value.x
   const playerY = physics.playerPosition.value.y
 
-  return (
-    x >= playerX &&
-    x <= playerX + props.settings.playerWidth &&
-    y >= playerY &&
-    y <= playerY + props.settings.playerHeight
-  )
+  // Use elliptical hitbox that matches character shape better
+  // Make it 30% larger for easier clicking on small screens
+  const scale = 1.3
+  const centerX = playerX + props.settings.playerWidth / 2
+  const centerY = playerY + props.settings.playerHeight / 2
+
+  // Calculate distance from center using ellipse formula
+  const radiusX = (props.settings.playerWidth / 2) * scale
+  const radiusY = (props.settings.playerHeight / 2) * scale
+  const dx = (x - centerX) / radiusX
+  const dy = (y - centerY) / radiusY
+
+  // Point is inside ellipse if distance <= 1
+  return (dx * dx + dy * dy) <= 1
 }
 
 function startDrag(event) {
@@ -1658,6 +1674,10 @@ function resetPlayer() {
 
 onMounted(() => {
   ctx.value = canvas.value.getContext('2d')
+
+  // Scale context for high-DPI displays
+  ctx.value.scale(dpr.value, dpr.value)
+
   physics.setPosition(props.level.startPosition.x, props.level.startPosition.y)
   physics.startFalling()
   initParticles()
@@ -1668,6 +1688,15 @@ onMounted(() => {
   initDoors()
   gameLoop()
 })
+
+// Re-apply DPR scaling when canvas size changes (resize/device change)
+watch([canvasWidth, canvasHeight], () => {
+  if (ctx.value && canvas.value) {
+    // Canvas resize clears context, need to reapply DPR scaling
+    ctx.value.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.value.scale(dpr.value, dpr.value)
+  }
+}, { flush: 'post' })
 
 onUnmounted(() => {
   if (animationFrame.value) {
