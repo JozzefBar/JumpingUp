@@ -29,11 +29,13 @@
           @goal-reached="handleGoalReached"
           @player-fell="handlePlayerFell"
           @jump="handleJump"
+          @drag-start="handleDragStart"
+          @drag-end="handleDragEnd"
         />
       </div>
 
       <!-- HUD Overlay - Minimalist corners -->
-      <div class="game-hud-overlay">
+      <div class="game-hud-overlay" :class="{ 'dragging': isDraggingPower }">
         <!-- Top Left: Level info -->
         <div class="hud-corner top-left">
           <div class="hud-text">Level {{ stats.currentLevel }}</div>
@@ -82,8 +84,10 @@
       :instructions="instructions"
       :stats="stats.getStats()"
       :format-time="stats.formatTime"
+      :has-saved-game="hasSavedGame"
       @close="showMenu = false"
       @start="startGame"
+      @continue-game="continueGame"
       @resume="showMenu = false"
       @restart="restartGame"
       @select-level="goToLevel"
@@ -94,11 +98,12 @@
       v-if="showLevelComplete"
       :level-name="completedLevelName"
       :attempts="completionStats.deaths"
+      :jumps="completionStats.jumps"
       :time="completionStats.time"
       :has-next-level="hasNextLevel"
       :format-time="stats.formatTime"
       @next-level="goToNextLevel"
-      @restart="restartLevel"
+      @restart="replayCurrentLevel"
       @menu="handleMenuFromComplete"
     />
 
@@ -106,43 +111,6 @@
     <div class="print-section">
       <h1>🏔️ Jumping Up</h1>
       
-      <h2>Štatistiky</h2>
-
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.totalDeaths }}</div>
-          <div class="stat-label">Celkový počet pokusov</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.totalJumps }}</div>
-          <div class="stat-label">Celkový počet skokov</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.completedLevels.value.length }}</div>
-          <div class="stat-label">Dokončené levely</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-number">{{ stats.formatTime(stats.totalTime.value) }}</div>
-          <div class="stat-label">Celkový čas</div>
-        </div>
-      </div>
-
-      <h2 v-if="stats.completedLevels.value.length > 0">História levelov</h2>
-      <div v-if="stats.completedLevels.value.length > 0" class="history-table">
-        <div class="history-header">
-          <div>Level</div>
-          <div>Pokusy</div>
-          <div>Skoky</div>
-          <div>Čas</div>
-        </div>
-        <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
-          <div>Level {{ level.levelId }}</div>
-          <div>{{ level.deaths }}</div>
-          <div>{{ level.jumps }}</div>
-          <div>{{ stats.formatTime(level.time) }}</div>
-        </div>
-      </div>
-
       <h2>Ako hrať</h2>
       <div class="instructions">
         <ol>
@@ -160,6 +128,47 @@
           </li>
         </ul>
       </div>
+
+      <template v-if="gameStarted">
+        <h2>Štatistiky</h2>
+
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.totalDeaths }}</div>
+            <div class="stat-label">Celkový počet pokusov</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.totalJumps }}</div>
+            <div class="stat-label">Celkový počet skokov</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.completedLevels.value.length }}</div>
+            <div class="stat-label">Dokončené levely</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ stats.formatTime(stats.totalTime.value) }}</div>
+            <div class="stat-label">Celkový čas</div>
+          </div>
+        </div>
+
+        <h2 v-if="stats.completedLevels.value.length > 0">História levelov</h2>
+        <div v-if="stats.completedLevels.value.length > 0" class="history-table">
+          <div class="history-header">
+            <div>Level</div>
+            <div>Názov</div>
+            <div>Pokusy</div>
+            <div>Skoky</div>
+            <div>Čas</div>
+          </div>
+          <div v-for="(level, index) in stats.completedLevels.value" :key="index" class="history-row">
+            <div>{{ level.levelId }}</div>
+            <div>{{ level.name }}</div>
+            <div>{{ level.deaths }}</div>
+            <div>{{ level.jumps }}</div>
+            <div>{{ stats.formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></div>
+          </div>
+        </div>
+      </template>
 
       <div class="footer">
         <p>Jumping Up - PWA Hra</p>
@@ -223,7 +232,7 @@ const hasNextLevel = computed(() => {
 })
 
 const menuTitle = computed(() => {
-  return gameStarted.value ? 'Pauza' : 'Jumping Up'
+  return gameStarted.value ? 'Menu' : 'Jumping Up'
 })
 
 const formattedElapsedTime = computed(() => {
@@ -233,6 +242,9 @@ const formattedElapsedTime = computed(() => {
 
 // Game is paused when isPaused is true OR menu is open
 const isGamePaused = computed(() => isPaused.value || showMenu.value)
+
+// Track dragging state
+const isDraggingPower = ref(false)
 
 function startGame() {
   gameStarted.value = true
@@ -279,6 +291,19 @@ function restartLevel() {
   }, 50)
 }
 
+function replayCurrentLevel() {
+  // Continue playing the same level after completion (Hrať znova button)
+  // Stats continue accumulating
+  showLevelComplete.value = false
+  stats.continueCurrentLevel()
+  levelRestartKey.value++
+  setTimeout(() => {
+    if (gameCanvas.value) {
+      gameCanvas.value.resetPlayer()
+    }
+  }, 50)
+}
+
 function toggleMenu() {
   showMenu.value = !showMenu.value
 }
@@ -291,8 +316,16 @@ function handleJump() {
   stats.recordJump()
 }
 
+function handleDragStart() {
+  isDraggingPower.value = true
+}
+
+function handleDragEnd() {
+  isDraggingPower.value = false
+}
+
 function handleGoalReached() {
-  const completion = stats.completeLevel()
+  const completion = stats.completeLevel(currentLevel.value.name)
   completionStats.value = completion
   completedLevelName.value = currentLevel.value.name
   showLevelComplete.value = true
@@ -332,6 +365,20 @@ function goToLevel(levelId) {
       gameCanvas.value.resetPlayer()
     }
   }, 50)
+}
+
+// Determine if a level completion has the best time for that level
+function isBestTime(level) {
+  // Get all completions for this level
+  const levelCompletions = stats.completedLevels.value.filter(l => l.levelId === level.levelId)
+
+  if (levelCompletions.length === 0) return false
+
+  // Find the minimum time for this level
+  const minTime = Math.min(...levelCompletions.map(l => l.time))
+
+  // Check if this level's time matches the minimum
+  return level.time === minTime
 }
 
 // Start screen particles
@@ -406,7 +453,10 @@ watch(showMenu, (isOpen) => {
     if (isOpen) {
       stats.pauseTimer()
     } else {
-      stats.resumeTimer()
+      // Only resume if the game is not paused by the user
+      if (!isPaused.value) {
+        stats.resumeTimer()
+      }
     }
   }
 })
@@ -439,6 +489,44 @@ watch(gameStarted, (started) => {
   }
 })
 
+// Handle print dialog - pause game when printing
+let wasPausedBeforePrint = false
+
+function handleBeforePrint() {
+  if (gameStarted.value && !isPaused.value && !showMenu.value && !showLevelComplete.value) {
+    wasPausedBeforePrint = false
+    isPaused.value = true
+  } else {
+    wasPausedBeforePrint = true
+  }
+}
+
+function handleAfterPrint() {
+  if (gameStarted.value && !wasPausedBeforePrint) {
+    isPaused.value = false
+  }
+}
+
+// Handle window visibility - pause when minimized or alt-tabbed
+function handleVisibilityChange() {
+  if (document.hidden) {
+    // Page is hidden (minimized, alt-tabbed, etc.)
+    if (gameStarted.value && !isPaused.value && !showMenu.value && !showLevelComplete.value) {
+      isPaused.value = true
+    }
+  }
+  // Don't auto-resume when page becomes visible - let user manually resume
+}
+
+// Handle keyboard shortcuts
+function handleKeyPress(event) {
+  // Space key toggles pause during gameplay
+  if (event.code === 'Space' && gameStarted.value && !showMenu.value && !showLevelComplete.value) {
+    event.preventDefault() // Prevent page scrolling
+    togglePause()
+  }
+}
+
 // Register service worker for PWA
 onMounted(() => {
   // Check for saved game
@@ -452,6 +540,16 @@ onMounted(() => {
     }, 100)
   }
 
+  // Add print dialog event listeners
+  window.addEventListener('beforeprint', handleBeforePrint)
+  window.addEventListener('afterprint', handleAfterPrint)
+
+  // Add visibility change listener - pause when window loses focus
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
+  // Add keyboard shortcuts listener
+  window.addEventListener('keydown', handleKeyPress)
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker
       .register('/sw.js')
@@ -464,6 +562,13 @@ onMounted(() => {
 onUnmounted(() => {
   stats.pauseTimer()
   stopStartParticles()
+  // Remove print dialog event listeners
+  window.removeEventListener('beforeprint', handleBeforePrint)
+  window.removeEventListener('afterprint', handleAfterPrint)
+  // Remove visibility change listener
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+  // Remove keyboard shortcuts listener
+  window.removeEventListener('keydown', handleKeyPress)
 })
 </script>
 

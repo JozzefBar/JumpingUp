@@ -1,11 +1,27 @@
+/* Hide print section by default (not in print mode) */
+.print-section {
+  display: none;
+}
+
 @media print {
-  * {
-    margin: 0;
-    padding: 0;
+   * {
+    box-sizing: border-box;
+  }
+
+  html, body, #app {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .print-section {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
   }
 
   body {
-    padding: 15px;
+    margin: 0;
+    padding: 0;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   }
 
@@ -89,19 +105,19 @@
 
   .history-header {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 0.6fr 1.8fr 0.8fr 0.8fr 1fr;
+    gap: 6px;
     background: linear-gradient(135deg, #8b7355 0%, #6b4423 100%);
     color: #fbbf24;
     font-weight: bold;
     padding: 5px;
-    text-align: center;
   }
 
   .history-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: 0.6fr 1.8fr 0.8fr 0.8fr 1fr;
+    gap: 6px;
     padding: 4px 5px;
-    text-align: center;
     border-top: 1px solid #ddd;
   }
 
@@ -123,10 +139,3 @@
     margin: 10mm;
   }
 }
-
-
-
-
-
-
-

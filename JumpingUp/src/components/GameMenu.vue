@@ -70,6 +70,7 @@
           <div class="history-table">
             <div class="history-row header">
               <span>Level</span>
+              <span>Názov</span>
               <span>Pokusy</span>
               <span>Skoky</span>
               <span>Čas</span>
@@ -79,10 +80,11 @@
               :key="level.completedAt"
               class="history-row"
             >
-              <span>Level {{ level.levelId }}</span>
+              <span>{{ level.levelId }}</span>
+              <span>{{ level.name }}</span>
               <span>{{ level.deaths }}</span>
               <span>{{ level.jumps }}</span>
-              <span>{{ formatTime(level.time) }}</span>
+              <span>{{ formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></span>
             </div>
           </div>
         </div>
@@ -92,19 +94,42 @@
         <button v-if="showResume" @click="resumeGame" class="btn btn-primary">
           Pokračovať v hre
         </button>
-        <button v-if="showStart" @click="startGame" class="btn btn-primary">
+        <button v-if="showStart" @click="handleStartGame" class="btn btn-primary">
           Začať hru
         </button>
         <button v-if="showRestart" @click="restartGame" class="btn btn-secondary">
-          Začať novú hru
+          Reštartovať celú hru
         </button>
         <button @click="closeMenu" class="btn btn-secondary">Zavrieť</button>
+      </div>
+    </div>
+
+    <!-- Start Confirmation Dialog -->
+    <div v-if="showStartConfirmation" class="game-menu-overlay" @click="showStartConfirmation = false">
+      <div class="game-menu start-confirmation-dialog" @click.stop>
+        <h2>Uložená hra</h2>
+        <p style="margin: 1.5rem 0; text-align: center; color: #f5deb3;">
+          Máš uloženú rozohratú hru. Chceš pokračovať alebo začať odznova?
+        </p>
+        <div class="menu-actions">
+          <button @click="continueGame" class="btn btn-primary">
+            Pokračovať
+          </button>
+          <button @click="startGame" class="btn btn-secondary">
+            Začať novú hru
+          </button>
+          <button @click="showStartConfirmation = false" class="btn btn-secondary">
+            Zrušiť
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 const props = defineProps({
   title: {
     type: String,
@@ -153,17 +178,40 @@ const props = defineProps({
   formatTime: {
     type: Function,
     required: true
+  },
+  hasSavedGame: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['close', 'start', 'resume', 'restart', 'select-level'])
+const emit = defineEmits(['close', 'start', 'resume', 'restart', 'select-level', 'continue-game'])
+
+const showStartConfirmation = ref(false)
 
 function closeMenu() {
   emit('close')
 }
 
+function handleStartGame() {
+  // Check if there's a saved game
+  if (props.hasSavedGame) {
+    // Show confirmation dialog
+    showStartConfirmation.value = true
+  } else {
+    // No saved game, just start new
+    emit('start')
+  }
+}
+
 function startGame() {
+  showStartConfirmation.value = false
   emit('start')
+}
+
+function continueGame() {
+  showStartConfirmation.value = false
+  emit('continue-game')
 }
 
 function resumeGame() {
@@ -192,6 +240,21 @@ function isLevelLocked(level) {
   // Check if previous level is completed
   const previousLevel = level - 1
   return !isLevelCompleted(previousLevel)
+}
+
+function isBestTime(level) {
+  if (!props.stats || !props.stats.levelHistory) return false
+
+  // Get all completions for this level
+  const levelCompletions = props.stats.levelHistory.filter(l => l.levelId === level.levelId)
+
+  if (levelCompletions.length === 0) return false
+
+  // Find the minimum time for this level
+  const minTime = Math.min(...levelCompletions.map(l => l.time))
+
+  // Check if this level's time matches the minimum
+  return level.time === minTime
 }
 </script>
 

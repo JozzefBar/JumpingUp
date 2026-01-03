@@ -15,12 +15,12 @@
       "Klikni na panáčika a podržiac tlačidlo myši, potiahni v opačnom smere, kam chceš skočiť",
       "Dĺžka a smer ťahania určia silu a smer skoku",
       "Cieľom je dostať sa na vrchol veže na zelenú platformu",
-      "Vyhýbaj sa červeným pohybujúcim sa prekážkam - ich dotyk znamená smrť!",
+      "Vyhýbaj sa pohybujúcim sa prekážkam - ich dotyk znamená smrť!",
       "Dávaj pozor, aby si nespadol - potom začneš znova!",
       "Zbieraj zlaté kľúče na odomknutie dverí"
     ],
     "tips": [
-      "Zober modrý orb ak je na mape - uvidíš presný smer a dĺžku svojho skoku!",
+      "Zober modrý orb ak je na mape - uvidíš presný smer a dopad svojho skoku!",
       "Zlaté kľúče odomykajú dvere - bez nich nedokončíš level!"
     ]
   }

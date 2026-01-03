@@ -68,12 +68,17 @@ export function useGameStats() {
     saveToLocalStorage()
   }
 
-  function completeLevel() {
+  function completeLevel(levelName = '') {
+    const levelTime = Date.now() - currentLevelStartTime.value
+
+    // Update elapsedTime to exact completion time before stopping timer
+    elapsedTime.value = levelTime
+
     if (timerInterval.value) {
       clearInterval(timerInterval.value)
+      timerInterval.value = null
     }
 
-    const levelTime = Date.now() - currentLevelStartTime.value
     levelTimes.value.push(levelTime)
 
     // Don't add to totals - the successful attempt is already counted
@@ -81,6 +86,7 @@ export function useGameStats() {
 
     completedLevels.value.push({
       levelId: currentLevel.value,
+      name: levelName,
       deaths: deaths.value,
       jumps: jumps.value,
       time: levelTime,
@@ -162,6 +168,33 @@ export function useGameStats() {
     saveToLocalStorage()
   }
 
+  function continueCurrentLevel() {
+    // Replay the same level after completion
+    // Reset current level stats but keep totals accumulating
+
+    // Reset current level stats
+    deaths.value = 1
+    jumps.value = 0
+    elapsedTime.value = 0
+
+    // Add the first attempt to totals (totals include current attempt)
+    totalDeaths.value++
+
+    // Clear existing timer
+    if (timerInterval.value) {
+      clearInterval(timerInterval.value)
+      timerInterval.value = null
+    }
+
+    // Start fresh timer
+    currentLevelStartTime.value = Date.now()
+    timerInterval.value = setInterval(() => {
+      elapsedTime.value = Date.now() - currentLevelStartTime.value
+    }, 100)
+
+    saveToLocalStorage()
+  }
+
   function resetStats() {
     currentLevel.value = 1
     deaths.value = 1
@@ -217,13 +250,16 @@ export function useGameStats() {
   }
 
   function getStats() {
+    // Count unique completed levels (not total completions)
+    const uniqueLevels = new Set(completedLevels.value.map(l => l.levelId))
+
     return {
       currentLevel: currentLevel.value,
       deaths: deaths.value,
       jumps: jumps.value,
       totalDeaths: totalDeaths.value,
       totalJumps: totalJumps.value,
-      completedLevels: completedLevels.value.length,
+      completedLevels: uniqueLevels.size,
       totalTime: totalTime.value,
       averageTime: averageTime.value,
       successRate: successRate.value,
@@ -307,6 +343,7 @@ export function useGameStats() {
     completeLevel,
     resetLevel,
     resumeLevel,
+    continueCurrentLevel,
     resetStats,
     pauseTimer,
     resumeTimer,
