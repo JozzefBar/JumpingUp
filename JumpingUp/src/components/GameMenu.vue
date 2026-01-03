@@ -90,7 +90,11 @@
               <span>{{ level.name }}</span>
               <span>{{ level.deaths }}</span>
               <span>{{ level.jumps }}</span>
-              <span>{{ formatTime(level.time) }} <span v-if="isBestTime(level)" style="color: #fbbf24;">🏆</span></span>
+              <span>
+                {{ formatTime(level.time) }}
+                <span v-if="isBestTime(level)" style="color: #fbbf24;">⭐</span>
+                <span v-if="level.collectedCourageOrb" style="color: #f97316;">🏆</span>
+              </span>
             </div>
           </div>
         </div>

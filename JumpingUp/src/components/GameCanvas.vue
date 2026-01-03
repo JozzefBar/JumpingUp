@@ -2,8 +2,9 @@
   <div class="game-canvas-container">
     <canvas
       ref="canvas"
-      :width="canvasWidth"
-      :height="canvasHeight"
+      :width="scaledCanvasWidth"
+      :height="scaledCanvasHeight"
+      :style="{ width: canvasWidth + 'px', height: canvasHeight + 'px' }"
       @mousedown="startDrag"
       @mousemove="updateDrag"
       @mouseup="endDrag"
@@ -39,6 +40,8 @@ const emit = defineEmits(['goal-reached', 'player-fell', 'jump', 'drag-start', '
 const canvas = ref(null)
 const ctx = ref(null)
 const animationFrame = ref(null)
+// Cap DPR at 2 for better performance on high-DPI displays
+const dpr = ref(Math.min(window.devicePixelRatio || 1, 2))
 
 const canvasWidth = computed(() => props.settings.canvasWidth)
 const canvasHeight = computed(() => props.settings.canvasHeight)
@@ -84,6 +87,9 @@ const doors = ref([])
 
 // Trajectory vision system
 const hasTrajectoryVision = ref(false)
+
+// Courage orb tracking
+const collectedCourageOrb = ref(false)
 
 function initParticles() {
   // Check if canvas dimensions are available
@@ -646,6 +652,68 @@ function drawCollectibles() {
       ctx.value.beginPath()
       ctx.value.arc(centerX, centerY, 14 * scale, time, time + Math.PI)
       ctx.value.stroke()
+    } else if (item.type === 'courage_orb') {
+      const scale = responsiveScale.value
+
+      // Courage orb - orange trophy shape
+      const time = Date.now() / 400
+      const bounce = Math.sin(time) * 4 * scale
+      const pulse = Math.sin(time * 2) * 0.3 + 0.7
+      const centerX = item.x + item.width / 2
+      const centerY = item.y + item.height / 2 + bounce
+
+      // Outer glow
+      ctx.value.shadowBlur = 25 * pulse * scale
+      ctx.value.shadowColor = '#f97316'
+
+      // Trophy gradient
+      const gradient = ctx.value.createRadialGradient(
+        centerX, centerY, 0,
+        centerX, centerY, 12 * scale
+      )
+      gradient.addColorStop(0, '#fed7aa')
+      gradient.addColorStop(0.5, '#fb923c')
+      gradient.addColorStop(1, '#f97316')
+
+      ctx.value.fillStyle = gradient
+
+      // Draw trophy cup
+      ctx.value.beginPath()
+      ctx.value.moveTo(centerX - 8 * scale, centerY - 4 * scale)
+      ctx.value.lineTo(centerX - 6 * scale, centerY + 4 * scale)
+      ctx.value.lineTo(centerX + 6 * scale, centerY + 4 * scale)
+      ctx.value.lineTo(centerX + 8 * scale, centerY - 4 * scale)
+      ctx.value.closePath()
+      ctx.value.fill()
+
+      // Trophy handles
+      ctx.value.strokeStyle = gradient
+      ctx.value.lineWidth = 2 * scale
+      ctx.value.beginPath()
+      ctx.value.arc(centerX - 10 * scale, centerY - 2 * scale, 3 * scale, 0, Math.PI * 2)
+      ctx.value.stroke()
+      ctx.value.beginPath()
+      ctx.value.arc(centerX + 10 * scale, centerY - 2 * scale, 3 * scale, 0, Math.PI * 2)
+      ctx.value.stroke()
+
+      // Trophy base
+      ctx.value.fillRect(centerX - 6 * scale, centerY + 4 * scale, 12 * scale, 2 * scale)
+      ctx.value.fillRect(centerX - 8 * scale, centerY + 6 * scale, 16 * scale, 2 * scale)
+
+      // Inner sparkle
+      ctx.value.fillStyle = 'rgba(255, 255, 255, 0.8)'
+      ctx.value.beginPath()
+      ctx.value.arc(centerX - 2 * scale, centerY - 2 * scale, 2 * scale, 0, Math.PI * 2)
+      ctx.value.fill()
+
+      ctx.value.shadowBlur = 0
+
+      // Rotating ring effect
+      ctx.value.strokeStyle = 'rgba(249, 115, 22, 0.5)'
+      ctx.value.lineWidth = 2 * scale
+      ctx.value.beginPath()
+      ctx.value.arc(centerX, centerY, 14 * scale, time, time + Math.PI)
+      ctx.value.stroke()
     }
   })
 }
@@ -787,8 +855,9 @@ function drawStartFlag() {
 }
 function getCanvasCoordinates(clientX, clientY) {
   const rect = canvas.value.getBoundingClientRect()
-  const scaleX = canvas.value.width / rect.width
-  const scaleY = canvas.value.height / rect.height
+  // Use logical dimensions, not physical canvas dimensions
+  const scaleX = canvasWidth.value / rect.width
+  const scaleY = canvasHeight.value / rect.height
 
   return {
     x: (clientX - rect.left) * scaleX,
@@ -800,12 +869,20 @@ function isClickOnPlayer(x, y) {
   const playerX = physics.playerPosition.value.x
   const playerY = physics.playerPosition.value.y
 
-  return (
-    x >= playerX &&
-    x <= playerX + props.settings.playerWidth &&
-    y >= playerY &&
-    y <= playerY + props.settings.playerHeight
-  )
+  // Use elliptical hitbox that matches character shape better
+  // Make it 30% larger for easier clicking on small screens
+  const scale = 1.3
+  const centerX = playerX + props.settings.playerWidth / 2
+  const centerY = playerY + props.settings.playerHeight / 2
+
+  // Calculate distance from center using ellipse formula
+  const radiusX = (props.settings.playerWidth / 2) * scale
+  const radiusY = (props.settings.playerHeight / 2) * scale
+  const dx = (x - centerX) / radiusX
+  const dy = (y - centerY) / radiusY
+
+  // Point is inside ellipse if distance <= 1
+  return (dx * dx + dy * dy) <= 1
 }
 
 function startDrag(event) {
@@ -1685,6 +1762,10 @@ function resetPlayer() {
 
 onMounted(() => {
   ctx.value = canvas.value.getContext('2d')
+
+  // Scale context for high-DPI displays
+  ctx.value.scale(dpr.value, dpr.value)
+
   physics.setPosition(props.level.startPosition.x, props.level.startPosition.y)
   physics.startFalling()
   initParticles()
@@ -1695,6 +1776,15 @@ onMounted(() => {
   initDoors()
   gameLoop()
 })
+
+// Re-apply DPR scaling when canvas size changes (resize/device change)
+watch([canvasWidth, canvasHeight], () => {
+  if (ctx.value && canvas.value) {
+    // Canvas resize clears context, need to reapply DPR scaling
+    ctx.value.setTransform(1, 0, 0, 1, 0, 0)
+    ctx.value.scale(dpr.value, dpr.value)
+  }
+}, { flush: 'post' })
 
 onUnmounted(() => {
   if (animationFrame.value) {
