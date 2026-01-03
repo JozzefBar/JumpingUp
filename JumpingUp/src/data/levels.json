@@ -12,7 +12,18 @@
         { "x": 70, "y": 325, "width": 330, "height": 20 },
         { "x": 530, "y": 250, "width": 350, "height": 20 },
         { "x": 100, "y": 175, "width": 330, "height": 20 },
-        { "x": 480, "y": 100, "width": 350, "height": 20 }
+        { "x": 480, "y": 100, "width": 350, "height": 20 },
+        { "x": 30, "y": 125, "width": 20, "height": 20 }
+      ],
+      "collectibles": [
+        {
+          "type": "courage_orb",
+          "xPercent": 0.0222,
+          "yPercent": 0.11,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        }
       ],
       "obstacles": [],
       "goal": { "x": 500, "y": 35, "width": 130, "height": 50 },
@@ -24,6 +35,7 @@
       "difficulty": "medium",
       "platforms": [
         { "x": 150, "y": 650, "width": 150, "height": 20 },
+        { "x": 800, "y": 650, "width": 20, "height": 20 },
         { "x": 450, "y": 600, "width": 230, "height": 20 },
         { "x": 130, "y": 510, "width": 220, "height": 20 },
         { "x": 500, "y": 435, "width": 200, "height": 20 },
@@ -31,6 +43,16 @@
         { "x": 580, "y": 260, "width": 200, "height": 20 },
         { "x": 160, "y": 175, "width": 250, "height": 20 },
         { "x": 530, "y": 100, "width": 270, "height": 20 }
+      ],
+      "collectibles": [
+        {
+          "type": "courage_orb",
+          "xPercent": 0.7925,
+          "yPercent": 0.81,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        }
       ],
       "obstacles": [
         {
@@ -79,6 +101,7 @@
       "difficulty": "hard",
       "platforms": [
         { "x": 50, "y": 620, "width": 200, "height": 20 },
+        { "x": 800, "y": 620, "width": 20, "height": 20 },
         { "x": 300, "y": 540, "width": 180, "height": 20 },
         { "x": 600, "y": 450, "width": 100, "height": 20 },
         { "x": 450, "y": 200, "width": 100, "height": 20 },
@@ -120,6 +143,14 @@
           "type": "trajectory_orb",
           "xPercent": 0.15,
           "yPercent": 0.34,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        },
+        {
+          "type": "courage_orb",
+          "xPercent": 0.7925,
+          "yPercent": 0.77,
           "widthPercent": 0.035,
           "heightPercent": 0.045,
           "collected": false
@@ -190,8 +221,16 @@
         },
         {
           "type": "trajectory_orb",
-          "xPercent": 0.467,
-          "yPercent": 0.25,
+          "xPercent": 0.78,
+          "yPercent": 0.78,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        },
+        {
+          "type": "courage_orb",
+          "xPercent": 0.1385,
+          "yPercent": 0.21,
           "widthPercent": 0.035,
           "heightPercent": 0.045,
           "collected": false
@@ -243,6 +282,66 @@
           "maxX": 470,
           "minY": 150,
           "maxY": 600
+        },
+        {
+          "x": 320,
+          "y": 160,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0,
+          "velocityY": 1,
+          "minX": 320,
+          "maxX": 320,
+          "minY": 160,
+          "maxY": 160
+        },
+        {
+          "x": 250,
+          "y": 120,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0,
+          "velocityY": 1,
+          "minX": 250,
+          "maxX": 250,
+          "minY": 120,
+          "maxY": 120
+        },
+        {
+          "x": 180,
+          "y": 160,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0,
+          "velocityY": 1,
+          "minX": 180,
+          "maxX": 180,
+          "minY": 160,
+          "maxY": 160
+        },
+        {
+          "x": 200,
+          "y": 75,
+          "width": 30,
+          "height": 30,
+          "velocityX": 1.5,
+          "velocityY": 0,
+          "minX": 100,
+          "maxX": 285,
+          "minY": 75,
+          "maxY": 75
+        },
+        {
+          "x": 102,
+          "y": 160,
+          "width": 30,
+          "height": 30,
+          "velocityX": 0,
+          "velocityY": 1,
+          "minX": 102,
+          "maxX": 102,
+          "minY": 160,
+          "maxY": 160
         }
       ],
       "goal": { "x": 425, "y": 690, "width": 120, "height": 30 },
@@ -253,8 +352,9 @@
       "name": "Kľúč k úspechu",
       "difficulty": "hard",
       "platforms": [
-        { "x": 80, "y": 660, "width": 90, "height": 20 },
-        { "x": 80, "y": 560, "width": 90, "height": 20 },
+        { "x": 70, "y": 660, "width": 100, "height": 20 },
+        { "x": 850, "y": 680, "width": 15, "height": 20 },
+        { "x": 70, "y": 560, "width": 100, "height": 20 },
         { "x": 210, "y": 640, "width": 90, "height": 20 },
         { "x": 210, "y": 540, "width": 90, "height": 20 },
         { "x": 340, "y": 620, "width": 90, "height": 20 },
@@ -293,8 +393,8 @@
       "collectibles": [
         {
           "type": "key",
-          "xPercent": 0.11,
-          "yPercent": 0.82,
+          "xPercent": 0.12,
+          "yPercent": 0.81,
           "widthPercent": 0.03,
           "heightPercent": 0.04,
           "collected": false
@@ -303,6 +403,14 @@
           "type": "trajectory_orb",
           "xPercent": 0.07,
           "yPercent": 0.8,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        },
+        {
+          "type": "courage_orb",
+          "xPercent": 0.84,
+          "yPercent": 0.85,
           "widthPercent": 0.035,
           "heightPercent": 0.045,
           "collected": false
@@ -524,10 +632,18 @@
       "collectibles": [
         {
           "type": "key",
-          "xPercent": 0.5,
-          "yPercent": 0.2,
+          "xPercent": 0.37,
+          "yPercent": 0.22,
           "widthPercent": 0.03,
           "heightPercent": 0.04,
+          "collected": false
+        },
+        {
+          "type": "courage_orb",
+          "xPercent": 0.5,
+          "yPercent": 0.18,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
           "collected": false
         }
       ],
@@ -692,7 +808,7 @@
           "width": 26,
           "height": 26,
           "velocityX": 0,
-          "velocityY": 1.8,
+          "velocityY": 5,
           "minX": 437,
           "maxX": 437,
           "minY": 60,
@@ -707,53 +823,83 @@
       "name": "Pokročilý test",
       "difficulty": "very-hard",
       "platforms": [
-        { "x": 80, "y": 680, "width": 220, "height": 20 },
-        { "x": 620, "y": 615, "width": 200, "height": 20 },
-        { "x": 140, "y": 550, "width": 190, "height": 20 },
-        { "x": 620, "y": 485, "width": 180, "height": 20 },
-        { "x": 160, "y": 420, "width": 180, "height": 20 },
-        { "x": 600, "y": 355, "width": 180, "height": 20 },
-        { "x": 180, "y": 290, "width": 180, "height": 20 },
-        { "x": 580, "y": 225, "width": 180, "height": 20 },
-        { "x": 200, "y": 160, "width": 180, "height": 20 },
-        { "x": 580, "y": 95, "width": 180, "height": 20 },
-        { "x": 120, "y": 30, "width": 220, "height": 20 }
+        { "x": 700, "y": 650, "width": 10, "height": 20 },
+        { "x": 300, "y": 650, "width": 20, "height": 20 },
+        { "x": 450, "y": 620, "width": 20, "height": 20 },
+        { "x": 600, "y": 600, "width": 20, "height": 20 },
+        { "x": 490, "y": 520, "width": 20, "height": 20 },
+        { "x": 350, "y": 500, "width": 20, "height": 20 },
+        { "x": 700, "y": 480, "width": 20, "height": 20 },
+        { "x": 560, "y": 450, "width": 20, "height": 20 },
+        { "x": 420, "y": 380, "width": 20, "height": 20 },
+        { "x": 620, "y": 340, "width": 20, "height": 20 },
+        { "x": 370, "y": 320, "width": 20, "height": 20 },
+        { "x": 520, "y": 280, "width": 20, "height": 20 },
+        { "x": 290, "y": 240, "width": 20, "height": 20 },
+        { "x": 390, "y": 220, "width": 20, "height": 20 },
+        { "x": 480, "y": 200, "width": 20, "height": 20 },
+        { "x": 640, "y": 180, "width": 20, "height": 20 },
+        { "x": 340, "y": 140, "width": 20, "height": 20 },
+        { "x": 680, "y": 120, "width": 20, "height": 20 },
+        { "x": 500, "y": 80, "width": 20, "height": 20 },
+        { "x": 178, "y": 317, "width": 70, "height": 20 },
+        { "x": 178, "y": 450, "width": 70, "height": 20 },
+        { "x": 900, "y": 250, "width": 20, "height": 20 }
+
       ],
       "barriers": [
         {
-          "xPercent": 0.44,
-          "yPercent": 0.55,
+          "xPercent": 0.25,
+          "yPercent": 0.05,
           "widthPercent": 0.02,
-          "heightPercent": 0.16
+          "heightPercent": 0.4
         },
         {
-          "xPercent": 0.47,
-          "yPercent": 0.06,
+          "xPercent": 0.25,
+          "yPercent": 0.6,
           "widthPercent": 0.02,
-          "heightPercent": 0.14
+          "heightPercent": 0.35
+        },
+        {
+          "xPercent": 0.75,
+          "yPercent": 0.05,
+          "widthPercent": 0.02,
+          "heightPercent": 0.2
+        },
+        {
+          "xPercent": 0.75,
+          "yPercent": 0.35,
+          "widthPercent": 0.02,
+          "heightPercent": 0.6
+        },
+        {
+          "xPercent": 0.1555,
+          "yPercent": 0.423,
+          "widthPercent": 0.02,
+          "heightPercent": 0.2045
         }
       ],
       "collectibles": [
         {
           "type": "key",
-          "xPercent": 0.8,
-          "yPercent": 0.6,
-          "widthPercent": 0.03,
-          "heightPercent": 0.04,
-          "collected": false
-        },
-        {
-          "type": "key",
-          "xPercent": 0.22,
-          "yPercent": 0.38,
+          "xPercent": 0.495,
+          "yPercent": 0.06,
           "widthPercent": 0.03,
           "heightPercent": 0.04,
           "collected": false
         },
         {
           "type": "trajectory_orb",
-          "xPercent": 0.16,
-          "yPercent": 0.85,
+          "xPercent": 0.6875,
+          "yPercent": 0.8,
+          "widthPercent": 0.035,
+          "heightPercent": 0.045,
+          "collected": false
+        },
+        {
+          "type": "courage_orb",
+          "xPercent": 0.8924,
+          "yPercent": 0.28,
           "widthPercent": 0.035,
           "heightPercent": 0.045,
           "collected": false
@@ -761,78 +907,19 @@
       ],
       "doors": [
         {
-          "xPercent": 0.38,
-          "yPercent": 0.02,
-          "widthPercent": 0.05,
-          "heightPercent": 0.075,
+          "xPercent": 0.25,
+          "yPercent": 0.46,
+          "widthPercent": 0.02,
+          "heightPercent": 0.131,
           "requiresKey": true,
           "isOpen": false
         }
       ],
       "obstacles": [
-        {
-          "x": 410,
-          "y": 580,
-          "width": 26,
-          "height": 26,
-          "velocityX": 1.3,
-          "velocityY": 0,
-          "minX": 350,
-          "maxX": 610,
-          "minY": 580,
-          "maxY": 580
-        },
-        {
-          "x": 390,
-          "y": 450,
-          "width": 26,
-          "height": 26,
-          "velocityX": 0,
-          "velocityY": 1.2,
-          "minX": 390,
-          "maxX": 390,
-          "minY": 360,
-          "maxY": 540
-        },
-        {
-          "x": 410,
-          "y": 320,
-          "width": 26,
-          "height": 26,
-          "velocityX": 1.3,
-          "velocityY": 0,
-          "minX": 370,
-          "maxX": 570,
-          "minY": 320,
-          "maxY": 320
-        },
-        {
-          "x": 400,
-          "y": 190,
-          "width": 26,
-          "height": 26,
-          "velocityX": 0,
-          "velocityY": 1.2,
-          "minX": 400,
-          "maxX": 400,
-          "minY": 100,
-          "maxY": 220
-        },
-        {
-          "x": 420,
-          "y": 125,
-          "width": 26,
-          "height": 26,
-          "velocityX": 1.4,
-          "velocityY": 0.7,
-          "minX": 390,
-          "maxX": 570,
-          "minY": 100,
-          "maxY": 155
-        }
+        
       ],
-      "goal": { "x": 170, "y": -10, "width": 110, "height": 35 },
-      "startPosition": { "x": 150, "y": 615 }
+      "goal": { "x": 185, "y": 350, "width": 55, "height": 85 },
+      "startPosition": { "x": 300, "y": 600 }
     },
     {
       "id": 8,
@@ -1006,4 +1093,5 @@
     }
   ]
 }
+
 
