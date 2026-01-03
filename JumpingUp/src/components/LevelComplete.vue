@@ -25,7 +25,6 @@
           Ďalší level
         </button>
         <button @click="restart" class="btn btn-secondary">Hrať znova</button>
-        <button @click="menu" class="btn btn-secondary">Menu</button>
       </div>
     </div>
   </div>
@@ -59,7 +58,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['next-level', 'restart', 'menu'])
+const emit = defineEmits(['next-level', 'restart'])
 
 function nextLevel() {
   emit('next-level')
@@ -67,10 +66,6 @@ function nextLevel() {
 
 function restart() {
   emit('restart')
-}
-
-function menu() {
-  emit('menu')
 }
 </script>
 
