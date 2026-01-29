@@ -1,31 +1,31 @@
 # Jumping Up
 
-Platformová PWA hra vytvorená ako skúškové zadanie pre predmet WEBTE1.
+A platform PWA game created as an exam assignment for the WEBTE1 subject.
 
 ## Link
 
-[Hraj hru](https://jozzefbar.github.io/JumpingUp-WEBTE1/)
+[Play the game](https://jozzefbar.github.io/JumpingUp-WEBTE1/)
 
 ## O hre
 
 Jumping Up je zábavná platformová hra, kde ovládaš ninja akrobata snažiaceho sa vyšplhať na vrchol veže. Pomocou drag and drop technológie nastavuješ smer a silu každého skoku.
 
-### Ciel
+### Goal
 
-Dostaň sa na zelenú cieľovú platformu na vrchole úrovne pomocou presne mierených skokov.
+Reach the green target platform at the top of the level using precisely timed jumps.
 
-## Funkcie
+## Functions
 
-- 3 unikátne levely
-- Drag and drop ovládanie
-- Trajectory vision systém (modrý orb)
-- Courage orb trofeje
-- Štatistiky a história levelov
-- Ukladanie progressu do localStorage
-- PWA - možnosť inštalácie na mobil
-- Responzívny dizajn
+- 3 unique levels
+- Drag and drop controls
+- Trajectory vision system (blue orb)
+- Courage orb trophies
+- Statistics and level history
+- Saving progress to localStorage
+- PWA - mobile installation option
+- Responsive design
 
-## Technológie
+## Technology
 
 - Vue.js 3
 - Vite
@@ -33,9 +33,9 @@ Dostaň sa na zelenú cieľovú platformu na vrchole úrovne pomocou presne mier
 - CSS3
 - PWA (Service Worker)
 
-## Autori
+## Authors
 
 - Jozef Barčák
 - Matúš Belan
 
-WEBTE1 - Zimný semester 2025/2026
+WEBTE1 - Winter semester 2025/2026
